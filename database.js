@@ -12,7 +12,6 @@ const connection = async () => {
         useUnifiedTopology: true,
       });
 
-      // console.log("abc :>> ", abc);
       let db = abc.db();
       console.log(`New Database Connection`);
       cachedDb = db;
