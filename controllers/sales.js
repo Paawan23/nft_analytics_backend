@@ -51,7 +51,59 @@ const getSales = async (req, res) => {
     });
   }
 };
+const getOwners = async (req, res) => {
+  try {
+    const db = await connection();
+
+    const getData = await db
+      .collection("reserviour_nft_owners")
+      .find({})
+      .toArray();
+
+    if (getData.length === 0) {
+      return res.status(409).json({
+        message: "No data found",
+      });
+    }
+
+    let ranges = {
+      first: {
+        x: 1,
+        y: 1,
+      },
+      second: {
+        x: 2,
+        y: 3,
+      },
+      third: {
+        x: 4,
+        y: 10,
+      },
+      fourth: {
+        x: 11,
+        y: 25,
+      },
+      fifth: {
+        x: 26,
+        y: 50,
+      },
+    };
+
+    for (let item in ranges) {
+      console.log("item :>> ", item);
+    }
+
+    return res.status(200).json({
+      data: getData,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   getSales,
+  getOwners,
 };
