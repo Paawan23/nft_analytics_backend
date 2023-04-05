@@ -41,6 +41,7 @@ const getSalesByContractAddressData = async (req, res) => {
     });
   }
 };
+
 const getReserviorNFTSales = async (req, res) => {
   try {
     const db = await connection();
@@ -83,7 +84,7 @@ const getReserviorNFTSales = async (req, res) => {
     });
   }
 };
-const getReserviorNFTOffers = async (req, res) => {
+const getReserviorNFTOffers = async () => {
   try {
     const db = await connection();
 
@@ -120,13 +121,12 @@ const getReserviorNFTOffers = async (req, res) => {
 
     // await db.collection("reserviour_nft_owners").insertMany(owners);
 
-    return res.status(200).json({ message: "OK" });
+    return { message: "OK" };
   } catch (error) {
-    return res.status(500).json({
-      message: error.message,
-    });
+    console.log("error.message :>> ", error.message);
   }
 };
+
 const getReserviorTop100Owners = async (req, res) => {
   try {
     const db = await connection();
@@ -164,10 +164,56 @@ const getReserviorTop100Owners = async (req, res) => {
     });
   }
 };
+const getCronosSalesByContractAddressData = async (req, res) => {
+  try {
+    const db = await connection();
+
+    let cursor;
+    let api;
+
+    do {
+      api = await axios.request({
+        method: "GET",
+        url: `https://deep-index.moralis.io/api/v2/nft/0x5DA0c6A68e7C348664664F1546B9BaAA493E8C73/transfers?chain=cronos${
+          cursor === undefined ? "" : "&cursor=" + cursor
+        }`,
+        headers: {
+          accept: "application/json",
+          "x-api-key":
+            "Jts6VzYtgtPxxHmNPrWhjgXSUgfDATmu6jUpJtZ0jzaxGwTV4my5olGa7eGIhx98",
+        },
+      });
+
+      // const ops = api.data.result.map((item) => ({
+      //   updateOne: {
+      //     filter: { token_hash: item.token_hash },
+      //     update: { $set: { ...item } },
+      //     upsert: true,
+      //   },
+      // }));
+
+      // await db
+      //   .collection("nft_cronos_sales")
+      //   .bulkWrite(ops, { ordered: false });
+
+      await db.collection("nft_cronos_sales").insertMany(api.data.result);
+
+      cursor = api.data.cursor;
+      console.log("cursor :>> ", cursor);
+    } while (cursor != undefined || cursor != null);
+
+    return res.status(200).json({ message: "OK" });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   getSalesByContractAddressData,
   getReserviorNFTSales,
   getReserviorNFTOffers,
   getReserviorTop100Owners,
+  getCronosSalesByContractAddressData,
 };
